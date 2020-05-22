@@ -1,0 +1,88 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: figgy-observability
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: "=X.X.X"
+
+provider:
+  name: aws
+  runtime: python3.7
+  deploymentBucket: dev-figgy-deploy
+  region: us-east-1
+
+package:
+    individually: true
+
+
+plugins:
+  - serverless-package-python-functions
+  - serverless-api-gateway-throttling
+
+custom:
+  pkgPyFuncs:
+    buildDir: _build
+    requirementsFile: 'requirements.txt'
+    globalRequirements:
+      - ./requirements.txt
+    globalIncludes:
+      - ./lib
+    cleanup: true
+
+  # Configures throttling settings for all http endpoints
+  apiGatewayThrottling:
+    maxRequestsPerSecond: 100
+    maxConcurrentRequests: 10
+
+functions:
+  log_error:
+    name: figgy-obs-log-error
+    role: arn:aws:iam::${ssm:/figgy/account_id}:role/log-error
+    handler: main.handle
+    timeout: 30
+    memorySize: 128
+    events:
+      - http:
+          path: /log-error
+          method: post
+          throttling:
+            maxRequestsPerSecond: 10
+            maxConcurrentRequests: 5
+
+    package:
+      include:
+        - functions/log_error
+      artifact: ${self:custom.pkgPyFuncs.buildDir}/figgy-obs-log-error.zip
+
+  get_version:
+    name: figgy-get-version
+    role: arn:aws:iam::${ssm:/figgy/account_id}:role/figgy-get-version
+    handler: main.handle
+    timeout: 30
+    memorySize: 128
+    events:
+      - http:
+          path: /version
+          method: get
+          throttling:
+            maxRequestsPerSecond: 50
+            maxConcurrentRequests: 10
+    package:
+      include:
+        - functions/get_version
+      artifact: ${self:custom.pkgPyFuncs.buildDir}/figgy-get-version.zip

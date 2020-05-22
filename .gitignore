@@ -1,0 +1,44 @@
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Intell*
+.idea
+
+# Dependency directory
+# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
+node_modules
+
+#IDE Stuff
+**/.idea
+
+#OS STUFF
+.DS_Store
+.tmp
+
+#SERVERLESS STUFF
+admin.env
+.env
+_meta
+.serverless
+_build
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
