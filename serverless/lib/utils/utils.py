@@ -1,6 +1,6 @@
 import logging
 from typing import List
-
+import time
 import botocore
 import urllib3
 
@@ -54,6 +54,6 @@ class Utils:
             yield lst[i:i + chunk_size]
 
     @staticmethod
-    def validate(self, boolean: bool, error_msg: str):
+    def validate(boolean: bool, error_msg: str):
         if not boolean:
             raise ValueError(error_msg)

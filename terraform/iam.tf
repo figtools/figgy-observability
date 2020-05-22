@@ -1,7 +1,15 @@
 
 locals {
-  log_error_policies = [aws_iam_policy.sns_error_write.arn, aws_iam_policy.lambda_default.arn]
-  get_version_policies = [aws_iam_policy.lambda_default.arn, aws_iam_policy.figgy_get_version.arn]
+  log_error_policies = [
+      aws_iam_policy.sns_error_write.arn,
+      aws_iam_policy.lambda_default.arn,
+      aws_iam_policy.get_figgy_configs.arn
+  ]
+
+  get_version_policies = [
+    aws_iam_policy.lambda_default.arn,
+    aws_iam_policy.figgy_get_version.arn
+  ]
 }
 
 # Log error role
@@ -57,6 +65,28 @@ data "aws_iam_policy_document" "sns_error_write" {
     ]
 
     resources = [aws_sns_topic.error_email.arn]
+  }
+}
+
+resource "aws_iam_policy" "get_figgy_configs" {
+  name = "get-figgy-configs"
+  path = "/"
+  description = "Access to read configs from /figgy namespace."
+  policy = data.aws_iam_policy_document.get_figgy_configs.json
+}
+
+
+data "aws_iam_policy_document" "get_figgy_configs" {
+  statement {
+    sid = "PublishError"
+    actions = [
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+        "ssm:GetParameterHistory",
+        "ssm:GetParametersByPath",
+    ]
+
+      resources = [ "arn:aws:ssm:*:${data.aws_caller_identity.current.account_id}:parameter/figgy/*" ]
   }
 }
 

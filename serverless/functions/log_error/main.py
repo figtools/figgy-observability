@@ -21,17 +21,16 @@ ERROR_TOPIC_ARN = ssm.get_parameter(ERROR_TOPIC_SSM_KEY)
 def handle(event, context):
     body = json.loads(event.get('body'))
     log.info(f'Got request with body: {body}')
-    stacktrace = body.get('stacktrace')
-    os = body.get('os')
-    command = body.get('command')
+    stacktrace = body.get(STACKTRACE)
+    os = body.get(OS)
+    command = body.get(COMMAND)
 
     Utils.validate(stacktrace and os and command, f"These JSON properties are required: {REQUIRED_PROPERTIES}")
 
-    response = sns.publish(
+    sns.publish(
         TopicArn=ERROR_TOPIC_ARN,
-        Message=body,
-        Subject=f'Error detected for command: {command}',
-        MessageStructure='json'
+        Message=json.dumps(body),
+        Subject=f'Error detected for command: {command}'
     )
 
     return {"statusCode": 200, "body": "Error logged successfully."}
