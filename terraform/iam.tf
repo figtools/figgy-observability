@@ -10,11 +10,17 @@ locals {
     aws_iam_policy.lambda_default.arn,
     aws_iam_policy.figgy_get_version.arn
   ]
+
+  log_metrics_policies = [
+    aws_iam_policy.lambda_default.arn,
+    aws_iam_policy.get_figgy_configs.arn,
+    aws_iam_policy.figgy_write_metrics.arn
+  ]
 }
 
 # Log error role
 resource "aws_iam_role" "log_error" {
-  name = "log-error"
+  name = "figgy-obs-log-error"
   assume_role_policy = data.aws_iam_policy_document.assume_policy.json
 }
 
@@ -35,6 +41,19 @@ resource "aws_iam_role_policy_attachment" "get_version_attachment" {
   count      = length(local.get_version_policies)
   policy_arn = local.get_version_policies[count.index]
 }
+
+# Log metrics Role
+resource "aws_iam_role" "figgy_log_metrics" {
+  name = "figgy-obs-log-metrics"
+  assume_role_policy = data.aws_iam_policy_document.assume_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "log_metrics_attachment" {
+  role       = aws_iam_role.figgy_log_metrics.name
+  count      = length(local.log_metrics_policies)
+  policy_arn = local.log_metrics_policies[count.index]
+}
+
 
 data "aws_iam_policy_document" "assume_policy" {
   statement {
@@ -108,6 +127,34 @@ data "aws_iam_policy_document" "figgy_get_version" {
         "ssm:GetParametersByPath",
       ]
       resources = [ "arn:aws:ssm:*:${data.aws_caller_identity.current.account_id}:parameter/figgy/deployments/*" ]
+  }
+
+  statement {
+    sid = "SSMDescribe"
+    actions = ["ssm:DescribeParameters"]
+    resources = ["*"]
+  }
+}
+
+# Default get-version policy
+resource "aws_iam_policy" "figgy_write_metrics" {
+  name = "figgy-write-metrics"
+  path = "/"
+  description = "Gives figgy metrics lambda access to write metrics to dynamodb"
+  policy = data.aws_iam_policy_document.write_metrics.json
+}
+
+
+data "aws_iam_policy_document" "write_metrics" {
+   statement {
+      sid = "FiggyWriteMetrics"
+      actions = [
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem"
+      ]
+      resources = [
+        aws_dynamodb_table.figgy_metrics.arn
+      ]
   }
 
   statement {

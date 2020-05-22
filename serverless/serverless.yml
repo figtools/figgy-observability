@@ -1,24 +1,4 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
-
 service: figgy-observability
-# app and org for use with dashboard.serverless.com
-#app: your-app-name
-#org: your-org-name
-
-# You can pin your service to only deploy with a specific Serverless version
-# Check out our docs for more details
-# frameworkVersion: "=X.X.X"
 
 provider:
   name: aws
@@ -52,13 +32,13 @@ custom:
 functions:
   log_error:
     name: figgy-obs-log-error
-    role: arn:aws:iam::${ssm:/figgy/account_id}:role/log-error
+    role: arn:aws:iam::${ssm:/figgy/account_id}:role/figgy-obs-log-error
     handler: main.handle
-    timeout: 30
+    timeout: 3
     memorySize: 128
     events:
       - http:
-          path: /log-error
+          path: /v1/log-error
           method: post
           throttling:
             maxRequestsPerSecond: 10
@@ -73,11 +53,11 @@ functions:
     name: figgy-get-version
     role: arn:aws:iam::${ssm:/figgy/account_id}:role/figgy-get-version
     handler: main.handle
-    timeout: 30
+    timeout: 3
     memorySize: 128
     events:
       - http:
-          path: /version
+          path: /v1/version
           method: get
           throttling:
             maxRequestsPerSecond: 50
@@ -86,3 +66,21 @@ functions:
       include:
         - functions/get_version
       artifact: ${self:custom.pkgPyFuncs.buildDir}/figgy-get-version.zip
+
+  log_usage:
+    name: figgy-obs-log-metrics
+    role: arn:aws:iam::${ssm:/figgy/account_id}:role/figgy-obs-log-metrics
+    handler: main.handle
+    timeout: 3
+    memorySize: 128
+    events:
+      - http:
+          path: /v1/log-metrics
+          method: post
+          throttling:
+            maxRequestsPerSecond: 50
+            maxConcurrentRequests: 10
+    package:
+      include:
+        - functions/log_usage
+      artifact: ${self:custom.pkgPyFuncs.buildDir}/figgy-obs-log-metrics.zip
