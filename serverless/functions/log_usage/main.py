@@ -12,11 +12,13 @@ sns = boto3.client('sns')
 ssm = SsmDao(boto3.client('ssm'))
 
 METRICS = 'metrics'
+USER_ID = 'user_id'
 COMMAND = 'command'
 count = 'count'
 FIGGY_METRICS_TABLE_NAME = 'figgy-metrics'
 FIGGY_METRICS_METRIC_NAME_KEY = 'metric_name'
-REQUIRED_PROPERTIES = [METRICS]
+FIGGY_METRICS_USER_ID_KEY = 'user_id'
+REQUIRED_PROPERTIES = [METRICS, USER_ID]
 
 ddb_rsc = boto3.resource('dynamodb')
 figgy_metrics = ddb_rsc.Table(FIGGY_METRICS_TABLE_NAME)
@@ -26,6 +28,8 @@ def handle(event, context):
     body = json.loads(event.get('body'))
     log.info(f'Got request with body: {body}')
     metrics = body.get(METRICS, {})
+    user_id = body.get(USER_ID, "Missing")
+
     Utils.validate(metrics, f"These JSON properties are required: {REQUIRED_PROPERTIES}")
 
     log.info(f"Adding {metrics} to {FIGGY_METRICS_TABLE_NAME}.")
@@ -35,6 +39,17 @@ def handle(event, context):
         figgy_metrics.update_item(
             Key={
                 FIGGY_METRICS_METRIC_NAME_KEY: command
+            },
+            AttributeUpdates={
+                'invocations': {
+                    'Value': metrics.get(command, 0),
+                    'Action': 'ADD'
+                }
+            })
+
+        figgy_metrics.update_item(
+            Key={
+                FIGGY_METRICS_METRIC_NAME_KEY: f'{user_id}-{command}'
             },
             AttributeUpdates={
                 'invocations': {
