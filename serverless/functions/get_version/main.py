@@ -13,16 +13,21 @@ CHANGELOG_ADDRESS = 'https://raw.githubusercontent.com/mancej/figgy/develop/cli/
 
 CURRENT_VERSION = ssm.get_parameter(CURRENT_VERSION_SSM_KEY)
 NOTIFY_CHANCE = ssm.get_parameter(ROLLOUT_MODIFIER_KEY)
+CHANGELOG = None
+
 
 def handle(event, context):
-    result = requests.get('https://raw.githubusercontent.com/mancej/figgy/develop/cli/CHANGELOG.md')
-    changelog = result.text if result.status_code == 200 else "Empty"
-    print(changelog)
+    global CHANGELOG
+
+    if not CHANGELOG:
+        result = requests.get('https://raw.githubusercontent.com/mancej/figgy/develop/cli/CHANGELOG.md')
+        CHANGELOG = result.text if result.status_code == 200 else "Empty"
+
     print(f'{CURRENT_VERSION} -> {NOTIFY_CHANCE}')
     return {"statusCode": 200, "body":
                 json.dumps({
                         "version": CURRENT_VERSION,
                         "notify_chance": NOTIFY_CHANCE,
-                        "changelog": changelog
+                        "changelog": CHANGELOG
                 })
             }

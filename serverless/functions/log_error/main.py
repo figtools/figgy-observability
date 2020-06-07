@@ -30,7 +30,7 @@ def handle(event, context):
     sns.publish(
         TopicArn=ERROR_TOPIC_ARN,
         Message=json.dumps(body),
-        Subject=f'Error detected for command: {command}'
+        Subject=f'Error detected for command: {command}'[:]
     )
 
     return {"statusCode": 200, "body": "Error logged successfully."}

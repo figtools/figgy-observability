@@ -17,6 +17,7 @@ resource "aws_ssm_parameter" "figgy_account_id" {
   type  = "String"
   value = var.aws_account_id
   description = "Current AWS account id"
+  overwrite = true
 }
 
 resource "aws_ssm_parameter" "error_topic_arn" {
