@@ -7,6 +7,7 @@
   },
   "devDependencies": {
     "serverless-domain-manager": "^4.1.1",
-    "serverless-package-python-functions": "^0.6.1"
+    "serverless-package-python-functions": "^0.6.1",
+    "serverless-plugin-log-retention": "^2.0.0"
   }
 }

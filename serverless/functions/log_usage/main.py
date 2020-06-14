@@ -48,7 +48,7 @@ def handle(event, context):
         },
         AttributeUpdates={
             'invocations': {
-                'Value': count,
+                'Value': 1,
                 'Action': 'ADD'
             }
         }
