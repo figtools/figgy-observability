@@ -21,7 +21,10 @@ data "aws_iam_policy_document" "manage_releases" {
         "s3:Put*",
         "s3:List*"
       ]
-      resources = [ data.aws_s3_bucket.deploy_bucket.arn ]
+      resources = [
+        "${data.aws_s3_bucket.deploy_bucket.arn}/*",
+        "arn:aws:s3:::figgy-website/*"
+      ]
   }
 
   statement {
