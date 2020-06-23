@@ -19,7 +19,8 @@ data "aws_iam_policy_document" "manage_releases" {
         "s3:DeleteObject",
         "s3:Get*",
         "s3:Put*",
-        "s3:List*"
+        "s3:List*",
+        "s3:CopyObject",
       ]
       resources = [
         "${data.aws_s3_bucket.deploy_bucket.arn}/*",
