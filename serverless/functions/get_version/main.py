@@ -10,7 +10,7 @@ ssm = SsmDao(boto3.client('ssm'))
 
 CURRENT_VERSION_SSM_KEY = '/figgy/deployments/current_version'
 ROLLOUT_MODIFIER_KEY = '/figgy/deployments/rollout_modifier'
-CHANGELOG_ADDRESS = 'https://raw.githubusercontent.com/mancej/figgy/develop/cli/CHANGELOG.md'
+CHANGELOG_ADDRESS = 'https://raw.githubusercontent.com/figtools/figgy/develop/cli/CHANGELOG.md'
 
 LAST_FETCH = 0
 CACHE_DURATION = 60 * 3  # cache the latest version for 3 minutes
@@ -28,7 +28,7 @@ def handle(event, context):
     global CHANGELOG
 
     if not CHANGELOG:
-        result = requests.get('https://raw.githubusercontent.com/mancej/figgy/develop/cli/CHANGELOG.md')
+        result = requests.get('https://raw.githubusercontent.com/figtools/figgy/develop/cli/CHANGELOG.md')
         CHANGELOG = result.text if result.status_code == 200 else "Empty"
 
     update_version()
