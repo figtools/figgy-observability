@@ -32,7 +32,7 @@ jobs:
           export PATH="$HOME/.serverless/bin:$PATH"
 
           env="dev"
-          branch_name = ${GITHUB_REF##*/}
+          branch_name=${GITHUB_REF##*/}
 
           if [[ $branch_name = "master" ]]; then
             env="prod"
