@@ -33,6 +33,7 @@ jobs:
 
           env="dev"
           branch_name=${GITHUB_REF##*/}
+          export SLS_DEBUB=*
 
           if [[ $branch_name = "master" ]]; then
             env="prod"
