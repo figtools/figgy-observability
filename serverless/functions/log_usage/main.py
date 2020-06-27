@@ -15,11 +15,13 @@ METRICS = 'metrics'
 USER_ID = 'user_id'
 COMMAND = 'command'
 VERSION = 'version'
+PLATFORM = 'platform'
 count = 'count'
 FIGGY_METRICS_TABLE_NAME = 'figgy-metrics'
 FIGGY_METRICS_METRIC_NAME_KEY = 'metric_name'
 FIGGY_METRICS_USER_ID_KEY = 'user_id'
 FIGGY_METRICS_VERSION_KEY = 'version'
+FIGGY_METRICS_PLATFORM_KEY = 'platform'
 REQUIRED_PROPERTIES = [METRICS, USER_ID]
 
 ddb_rsc = boto3.resource('dynamodb')
@@ -32,6 +34,7 @@ def handle(event, context):
     metrics = body.get(METRICS, {})
     user_id = body.get(USER_ID, "Missing")
     version = body.get(VERSION, "Missing")
+    platform = body.get(PLATFORM, "Missing")
 
     Utils.validate(metrics, f"These JSON properties are required: {REQUIRED_PROPERTIES}")
 
@@ -39,7 +42,8 @@ def handle(event, context):
 
     figgy_metrics.put_item(Item={
         FIGGY_METRICS_METRIC_NAME_KEY: f'{user_id}-version',
-        'version': version
+        FIGGY_METRICS_VERSION_KEY: version,
+        FIGGY_METRICS_PLATFORM_KEY: platform
     })
 
     figgy_metrics.update_item(

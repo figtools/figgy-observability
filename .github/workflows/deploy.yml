@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+    branches: [develop, master]
+  pull_request:
+    branches: [develop, master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      OVERRIDE_KEYRING: true
+      CONFIG_FILE: ${{ secrets.CONFIG_FILE }}
+      CREDS_FILE: ${{ secrets.CREDS_FILE }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Deploy
+        run: |
+
+        # Write out the [figgy-qa] profile with valid credentials
+        mkdir -p ~/.aws
+        echo "$CONFIG_FILE" > ~/.aws/config
+        echo "$CREDS_FILE" > ~/.aws/credentials
+
+        sudo apt -y install npm
+        sudo npm install -g serverless
+        serverless plugin install --name serverless-package-python-functions
+        serverless plugin install --name serverless-api-gateway-throttling
+        serverless plugin install --name serverless-domain-manager
+        serverless plugin install --name serverless-plugin-log-retention
+
+        branch_name = ${GITHUB_REF##*/}
+        env="dev"
+
+        if [[ $branch_name = "master" ]]; then
+          env="prod"
+        fi
+
+        sls deploy --aws-profile "figgy-${env}" --stage "${env}"
