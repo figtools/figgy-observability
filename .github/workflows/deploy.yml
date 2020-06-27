@@ -21,23 +21,23 @@ jobs:
           CONFIG_FILE: ${{ secrets.CONFIG_FILE }}
           CREDS_FILE: ${{ secrets.CREDS_FILE }}
         run: |
-        # Write out the [figgy-qa] profile with valid credentials
-        mkdir -p ~/.aws
-        echo "$CONFIG_FILE" > ~/.aws/config
-        echo "$CREDS_FILE" > ~/.aws/credentials
+          # Write out the [figgy-qa] profile with valid credentials
+          mkdir -p ~/.aws
+          echo "$CONFIG_FILE" > ~/.aws/config
+          echo "$CREDS_FILE" > ~/.aws/credentials
 
-        sudo apt -y install npm
-        sudo npm install -g serverless
-        serverless plugin install --name serverless-package-python-functions
-        serverless plugin install --name serverless-api-gateway-throttling
-        serverless plugin install --name serverless-domain-manager
-        serverless plugin install --name serverless-plugin-log-retention
+          sudo apt -y install npm
+          sudo npm install -g serverless
+          serverless plugin install --name serverless-package-python-functions
+          serverless plugin install --name serverless-api-gateway-throttling
+          serverless plugin install --name serverless-domain-manager
+          serverless plugin install --name serverless-plugin-log-retention
 
-        branch_name = ${GITHUB_REF##*/}
-        env="dev"
+          branch_name = ${GITHUB_REF##*/}
+          env="dev"
 
-        if [[ $branch_name = "master" ]]; then
-          env="prod"
-        fi
+          if [[ $branch_name = "master" ]]; then
+            env="prod"
+          fi
 
-        sls deploy --aws-profile "figgy-${env}" --stage "${env}"
+          sls deploy --aws-profile "figgy-${env}" --stage "${env}"
