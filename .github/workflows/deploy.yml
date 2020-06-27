@@ -31,6 +31,12 @@ jobs:
           curl -o- -L https://slss.io/install | bash
           export PATH="$HOME/.serverless/bin:$PATH"
 
+          env="dev"
+
+          if [[ $branch_name = "master" ]]; then
+            env="prod"
+          fi
+
           cd serverless/
           serverless plugin install --name serverless-package-python-functions --aws-profile "figgy-${env}"
           serverless plugin install --name serverless-api-gateway-throttling --aws-profile "figgy-${env}"
@@ -38,10 +44,5 @@ jobs:
           serverless plugin install --name serverless-plugin-log-retention --aws-profile "figgy-${env}"
 
           branch_name = ${GITHUB_REF##*/}
-          env="dev"
-
-          if [[ $branch_name = "master" ]]; then
-            env="prod"
-          fi
 
           sls deploy --aws-profile "figgy-${env}" --stage "${env}"
