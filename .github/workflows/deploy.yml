@@ -32,7 +32,8 @@ jobs:
           export PATH="$HOME/.serverless/bin:$PATH"
 
           env="dev"
-
+          branch_name = ${GITHUB_REF##*/}
+cip
           if [[ $branch_name = "master" ]]; then
             env="prod"
           fi
@@ -43,6 +44,5 @@ jobs:
           serverless plugin install --name serverless-domain-manager --aws-profile "figgy-${env}" --stage "${env}"
           serverless plugin install --name serverless-plugin-log-retention --aws-profile "figgy-${env}" --stage "${env}"
 
-          branch_name = ${GITHUB_REF##*/}
 
           sls deploy --aws-profile "figgy-${env}" --stage "${env}"
