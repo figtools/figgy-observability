@@ -32,10 +32,10 @@ jobs:
           export PATH="$HOME/.serverless/bin:$PATH"
 
           cd serverless/
-          serverless plugin install --name serverless-package-python-functions
-          serverless plugin install --name serverless-api-gateway-throttling
-          serverless plugin install --name serverless-domain-manager
-          serverless plugin install --name serverless-plugin-log-retention
+          serverless plugin install --name serverless-package-python-functions --aws-profile "figgy-${env}"
+          serverless plugin install --name serverless-api-gateway-throttling "figgy-${env}"
+          serverless plugin install --name serverless-domain-manager "figgy-${env}"
+          serverless plugin install --name serverless-plugin-log-retention "figgy-${env}"
 
           branch_name = ${GITHUB_REF##*/}
           env="dev"
