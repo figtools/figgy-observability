@@ -27,11 +27,13 @@ jobs:
           echo "$CREDS_FILE" > ~/.aws/credentials
 
           sudo apt -y install npm
+
           sudo npm install -g serverless
-          serverless plugin install --name serverless-package-python-functions
-          serverless plugin install --name serverless-api-gateway-throttling
-          serverless plugin install --name serverless-domain-manager
-          serverless plugin install --name serverless-plugin-log-retention
+
+          sudo serverless plugin install --name serverless-package-python-functions
+          sudo serverless plugin install --name serverless-api-gateway-throttling
+          sudo serverless plugin install --name serverless-domain-manager
+          sudo serverless plugin install --name serverless-plugin-log-retention
 
           branch_name = ${GITHUB_REF##*/}
           env="dev"
