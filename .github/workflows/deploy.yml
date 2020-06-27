@@ -29,7 +29,8 @@ jobs:
           sudo apt -y install npm
 
           curl -o- -L https://slss.io/install | bash
-
+          export PATH="$HOME/.serverless/bin:$PATH"
+          
           serverless plugin install --name serverless-package-python-functions
           serverless plugin install --name serverless-api-gateway-throttling
           serverless plugin install --name serverless-domain-manager
