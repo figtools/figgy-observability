@@ -10,7 +10,7 @@ ssm = SsmDao(boto3.client('ssm'))
 
 CURRENT_VERSION_SSM_KEY = '/figgy/deployments/current_version'
 ROLLOUT_MODIFIER_KEY = '/figgy/deployments/rollout_modifier'
-CHANGELOG_ADDRESS = 'https://raw.githubusercontent.com/figtools/figgycli/master/CHANGELOG.md'
+CHANGELOG_ADDRESS = 'https://raw.githubusercontent.com/figtools/figgy-cli/master/CHANGELOG.md'
 
 LAST_FETCH = 0
 CACHE_DURATION = 60 * 3  # cache the latest version for 3 minutes
