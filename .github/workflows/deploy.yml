@@ -30,7 +30,8 @@ jobs:
 
           curl -o- -L https://slss.io/install | bash
           export PATH="$HOME/.serverless/bin:$PATH"
-          
+
+          cd serverless/
           serverless plugin install --name serverless-package-python-functions
           serverless plugin install --name serverless-api-gateway-throttling
           serverless plugin install --name serverless-domain-manager
