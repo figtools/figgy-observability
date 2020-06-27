@@ -9,10 +9,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      OVERRIDE_KEYRING: true
-      CONFIG_FILE: ${{ secrets.CONFIG_FILE }}
-      CREDS_FILE: ${{ secrets.CREDS_FILE }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
@@ -20,8 +16,11 @@ jobs:
         with:
           python-version: 3.8
       - name: Deploy
+        env:
+          OVERRIDE_KEYRING: true
+          CONFIG_FILE: ${{ secrets.CONFIG_FILE }}
+          CREDS_FILE: ${{ secrets.CREDS_FILE }}
         run: |
-
         # Write out the [figgy-qa] profile with valid credentials
         mkdir -p ~/.aws
         echo "$CONFIG_FILE" > ~/.aws/config
