@@ -33,7 +33,7 @@ jobs:
 
           env="dev"
           branch_name = ${GITHUB_REF##*/}
-cip
+
           if [[ $branch_name = "master" ]]; then
             env="prod"
           fi
