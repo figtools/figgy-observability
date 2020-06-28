@@ -28,7 +28,7 @@ def handle(event, context):
     global CHANGELOG
 
     if not CHANGELOG:
-        result = requests.get('https://raw.githubusercontent.com/figtools/figgy/develop/cli/CHANGELOG.md')
+        result = requests.get(CHANGELOG_ADDRESS)
         CHANGELOG = result.text if result.status_code == 200 else "Empty"
 
     update_version()
