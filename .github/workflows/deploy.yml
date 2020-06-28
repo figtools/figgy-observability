@@ -45,5 +45,5 @@ jobs:
           serverless plugin install --name serverless-domain-manager --aws-profile "figgy-${env}" --stage "${env}"
           serverless plugin install --name serverless-plugin-log-retention --aws-profile "figgy-${env}" --stage "${env}"
 
-          sls create_domain
+          sls create_domain --aws-profile "figgy-${env}" --stage "${env}"
           sls deploy --aws-profile "figgy-${env}" --stage "${env}"
