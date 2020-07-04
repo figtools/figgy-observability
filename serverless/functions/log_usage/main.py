@@ -1,9 +1,12 @@
 import json
 from datetime import datetime
+from typing import Dict
 
 import boto3
+from aws_embedded_metrics import metric_scope
 
 from data.dao.ssmdao import SsmDao
+# from utils.logging import LoggingUtils
 from utils.logging import LoggingUtils
 from utils.utils import Utils
 
@@ -28,17 +31,30 @@ ddb_rsc = boto3.resource('dynamodb')
 figgy_metrics = ddb_rsc.Table(FIGGY_METRICS_TABLE_NAME)
 
 
+@metric_scope
+def publish_cw_stats(platform: str, version: str, stats, metrics):
+    metrics.set_namespace("figgy")
+    metrics.put_dimensions({"Version": version, "Platform": platform})
+
+    for key, val in stats.items():
+        metrics.set_namespace("figgy")
+        metrics.put_metric(key, val, "Count")
+
+
 def handle(event, context):
     body = json.loads(event.get('body'))
     log.info(f'Got request with body: {body}')
-    metrics = body.get(METRICS, {})
+
+    stats = body.get(METRICS, {})
     user_id = body.get(USER_ID, "Missing")
     version = body.get(VERSION, "Missing")
     platform = body.get(PLATFORM, "Missing")
 
-    Utils.validate(metrics, f"These JSON properties are required: {REQUIRED_PROPERTIES}")
+    Utils.validate(stats, f"These JSON properties are required: {REQUIRED_PROPERTIES}")
 
-    log.info(f"Adding {metrics} to {FIGGY_METRICS_TABLE_NAME}.")
+    publish_cw_stats(platform, version, stats)
+
+    log.info(f"Adding {stats} to {FIGGY_METRICS_TABLE_NAME}.")
 
     figgy_metrics.put_item(Item={
         FIGGY_METRICS_METRIC_NAME_KEY: f'{user_id}-version',
@@ -58,15 +74,15 @@ def handle(event, context):
         }
     )
 
-    for command in metrics.keys():
-        log.info(f"Adding {metrics.get(command, 0)} invocations for command: {command}")
+    for command in stats.keys():
+        log.info(f"Adding {stats.get(command, 0)} invocations for command: {command}")
         figgy_metrics.update_item(
             Key={
                 FIGGY_METRICS_METRIC_NAME_KEY: command
             },
             AttributeUpdates={
                 'invocations': {
-                    'Value': metrics.get(command, 0),
+                    'Value': stats.get(command, 0),
                     'Action': 'ADD'
                 }
             }
@@ -78,7 +94,7 @@ def handle(event, context):
             },
             AttributeUpdates={
                 'invocations': {
-                    'Value': metrics.get(command, 0),
+                    'Value': stats.get(command, 0),
                     'Action': 'ADD'
                 }
             }
