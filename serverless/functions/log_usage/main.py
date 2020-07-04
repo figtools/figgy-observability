@@ -39,6 +39,7 @@ def publish_cw_stats(platform: str, version: str, stats, metrics):
     for key, val in stats.items():
         metrics.set_namespace("figgy")
         metrics.put_metric(key, val, "Count")
+        metrics.put_metric('total', val, 'Count')
 
 
 def handle(event, context):
