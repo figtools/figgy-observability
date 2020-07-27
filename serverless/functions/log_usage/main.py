@@ -32,12 +32,20 @@ figgy_metrics = ddb_rsc.Table(FIGGY_METRICS_TABLE_NAME)
 
 
 @metric_scope
-def publish_cw_stats(platform: str, version: str, stats, metrics):
+def publish_version_stats(version: str, stats, metrics):
     metrics.set_namespace("figgy")
-    metrics.put_dimensions({"Version": version, "Platform": platform})
+    metrics.put_dimensions({"Version": version})
 
     for key, val in stats.items():
-        metrics.set_namespace("figgy")
+        metrics.put_metric('total', val, 'Count')
+
+
+@metric_scope
+def publish_platform_stats(platform: str, stats, metrics):
+    metrics.set_namespace("figgy")
+    metrics.put_dimensions({"Platform": platform})
+
+    for key, val in stats.items():
         metrics.put_metric(key, val, "Count")
         metrics.put_metric('total', val, 'Count')
 
@@ -53,7 +61,8 @@ def handle(event, context):
 
     Utils.validate(stats, f"These JSON properties are required: {REQUIRED_PROPERTIES}")
 
-    publish_cw_stats(platform, version, stats)
+    publish_version_stats(version, stats)
+    publish_platform_stats(platform, stats)
 
     log.info(f"Adding {stats} to {FIGGY_METRICS_TABLE_NAME}.")
 
