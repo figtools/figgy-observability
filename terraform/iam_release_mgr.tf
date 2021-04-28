@@ -2,15 +2,19 @@ resource "aws_iam_user" "release_mgr" {
   name = "figgy-release-mgr"
   path = "/"
 }
+
 resource "aws_iam_user_policy" "release_mgr" {
   name = "figgy-manage-releases"
   user = aws_iam_user.release_mgr.name
   policy = data.aws_iam_policy_document.manage_releases.json
 }
 
-data "aws_s3_bucket" "deploy_bucket" {
-  bucket = "${var.run_env}-figgy-deploy"
+resource "aws_iam_user_policy" "manage_ecr" {
+  name = "figgy-manage-ecr"
+  user = aws_iam_user.release_mgr.name
+  policy = data.aws_iam_policy_document.manage_ecr.json
 }
+
 
 data "aws_iam_policy_document" "manage_releases" {
    statement {
@@ -23,7 +27,7 @@ data "aws_iam_policy_document" "manage_releases" {
         "s3:CopyObject",
       ]
       resources = [
-        "${data.aws_s3_bucket.deploy_bucket.arn}/*",
+        "${aws_s3_bucket.figgy-deploy.arn}/*",
         "arn:aws:s3:::figgy-website/*"
       ]
   }
@@ -51,5 +55,28 @@ data "aws_iam_policy_document" "manage_releases" {
       "ssm:GetParametersByPath",
     ]
     resources = [ "arn:aws:ssm:*:${data.aws_caller_identity.current.account_id}:parameter/figgy/deployments/*" ]
+  }
+}
+
+data "aws_iam_policy_document" "manage_ecr" {
+  statement {
+    sid = "ManageECR"
+    effect = "Allow"
+
+    actions = [
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:PutImage",
+      "ecr:InitiateLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:CompleteLayerUpload",
+      "ecr-public:GetAuthorizationToken",
+      "sts:GetServiceBearerToken",
+    ]
+
+    resources = [
+      "arn:aws:ecr-public::${data.aws_caller_identity.current.account_id}:repository/figgy"
+    ]
   }
 }

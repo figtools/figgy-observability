@@ -1,7 +1,7 @@
 resource "aws_ssm_parameter" "deploy_bucket" {
   name  = "/figgy/lambda/deploy-bucket"
   type  = "String"
-  value = data.aws_s3_bucket.selected.id
+  value = aws_s3_bucket.figgy-deploy.id
   description = "Figgy lambda deploy bucket id"
 }
 
